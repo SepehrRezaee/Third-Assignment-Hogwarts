@@ -15,6 +15,7 @@ public class MainViewController {
     @FXML
     private ListView<String> coursesListView;
 
+    
     @FXML
     private TextArea teacherDetailsTextArea;
 
