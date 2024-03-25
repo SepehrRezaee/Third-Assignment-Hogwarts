@@ -1,52 +1,45 @@
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.UUID;
 
-public class Account {
-
-    private String username;
+public abstract class Account implements AccountManagement {
+    private String name;
     private byte[] hashedPassword;
     private UUID accountID;
 
-    public Account(String username, String password) {
-        this.username = username;
+    public Account(String name, String password) {
+        this.name = name;
+        this.hashedPassword = hashPassword(password);
         this.accountID = UUID.randomUUID();
-        this.hashPassword(password);
     }
 
-    private void hashPassword(String password) {
+    private static byte[] hashPassword(String password) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
-            md.update(password.getBytes());
-            this.hashedPassword = md.digest();
+            return md.digest(password.getBytes(StandardCharsets.UTF_8));
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Error hashing password", e);
         }
+    }
+
+    public String getName() {
+        return name;
     }
 
     @Override
     public boolean validatePassword(String enteredPassword) {
-        byte[] enteredHashedPassword = hashString(enteredPassword);
-        return MessageDigest.isEqual(this.hashedPassword, enteredHashedPassword);
+        byte[] hashedEnteredPassword = hashPassword(enteredPassword);
+        return MessageDigest.isEqual(hashedEnteredPassword, this.hashedPassword);
     }
 
     @Override
     public void changeUsername(String newUsername) {
-        this.username = newUsername;
+        this.name = newUsername;
     }
 
     @Override
     public void changePassword(String newPassword) {
-        this.hashPassword(newPassword);
-    }
-
-    private byte[] hashString(String input) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            md.update(input.getBytes());
-            return md.digest();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            return null;
-        }
+        this.hashedPassword = hashPassword(newPassword);
     }
 }
