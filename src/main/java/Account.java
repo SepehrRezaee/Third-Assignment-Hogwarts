@@ -1,24 +1,45 @@
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 
-public class Account {
-    private String username;
-    // TODO: Passwords should hashed
-    private String password;
+public abstract class Account implements AccountManagement {
+    private String name;
+    private byte[] hashedPassword;
     private UUID accountID;
+
+    public Account(String name, String password) {
+        this.name = name;
+        this.hashedPassword = hashPassword(password);
+        this.accountID = UUID.randomUUID();
+    }
+
+    private static byte[] hashPassword(String password) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            return md.digest(password.getBytes(StandardCharsets.UTF_8));
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Error hashing password", e);
+        }
+    }
+
+    public String getName() {
+        return name;
+    }
 
     @Override
     public boolean validatePassword(String enteredPassword) {
-        //TODO
-        return false;
+        byte[] hashedEnteredPassword = hashPassword(enteredPassword);
+        return MessageDigest.isEqual(hashedEnteredPassword, this.hashedPassword);
     }
 
     @Override
     public void changeUsername(String newUsername) {
-        //TODO
+        this.name = newUsername;
     }
 
     @Override
     public void changePassword(String newPassword) {
-        //TODO
+        this.hashedPassword = hashPassword(newPassword);
     }
 }
