@@ -9,6 +9,7 @@ public class Course {
     private UUID courseID;
     private List<Student> students;
     private Teacher teacher;
+    
 
     public Course(String title, Teacher teacher) {
         this.title = title;
