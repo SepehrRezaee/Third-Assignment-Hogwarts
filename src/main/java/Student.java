@@ -12,6 +12,7 @@ public class Student extends Account {
         courses = new ArrayList<>();
     }
 
+    
     public List<Course> getCourses() {
         return courses;
     }
